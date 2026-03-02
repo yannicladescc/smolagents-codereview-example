@@ -77,12 +77,26 @@ GROQ_MAX_TOKENS=2000                                               # Optional
 ## Project Structure
 
 ```
-src/
-  code_review_agent.py   # Agent logic (CLI, agent creation, review functions)
-  tools.py               # Tool definitions (read_code_file, analyze_code)
-examples/                # Test files
-documentation/           # Guides
-reports/                 # Generated outputs
+.
+├── README.md                          # This file
+├── requirements.txt                   # Python dependencies
+├── src/
+│   ├── code_review_agent.py          # Agent logic (CLI, agent creation, review functions)
+│   ├── tools.py                      # Tool definitions (read_code_file, lint_code_file)
+│   └── prompts.yaml                  # Prompt templates for code review
+├── examples/
+│   ├── bad_code.py                   # Example Python file with issues
+│   ├── good_code.py                  # Example well-written Python code
+│   ├── bad_code_typescript.ts        # Example TypeScript with issues
+│   └── good_code_typescript.ts       # Example well-written TypeScript code
+├── documentation/
+│   ├── README.md                     # Docs index
+│   ├── from-scratch-setup.md         # Workshop guide (build your own)
+│   ├── agent-workflow.md             # How the agent makes decisions
+│   ├── tools-and-capabilities.md     # Tool architecture & custom tools
+│   ├── architecture.md               # System design details
+│   └── configuration.md              # Models, parameters, rate limits
+└── reports/                          # Generated code review reports
 ```
 
 ## Troubleshooting
