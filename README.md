@@ -42,7 +42,7 @@ results = review_directory("my_project/")
 ```
 User → review_code_file() → CodeAgent → Tools → Text Report
                                 ↓
-                         Groq LLM (Llama 3.3 70B)
+                            Groq LLM
 ```
 
 **Tools:** `read_code_file` (loads files), `lint_code_file` (runs ruff on Python)
