@@ -17,6 +17,7 @@ cat > requirements.txt << EOF
 smolagents[litellm]>=1.24.0
 groq>=0.15.0
 python-dotenv>=1.0.0
+pyyaml>=6.0
 EOF
 uv pip install -r requirements.txt
 
@@ -59,15 +60,59 @@ def read_code_file(file_path: str) -> str:
 - `print()` helps the LLM track execution
 - Tools should do things the LLM can't do on its own (file I/O, API calls, etc.)
 
-## Step 3: Create the Agent (15 min)
+## Step 3: Create Prompts (5 min)
+
+Create `src/prompts.yaml`:
+
+```yaml
+prompts:
+  code_review:
+    name: "Code Review Prompt"
+    template: |
+      Review the code file at '{file_path}'.
+
+      Analyze the code for issues in these categories:
+
+      Security — Check for: dangerous functions (eval, exec), injection vulnerabilities, hardcoded secrets, missing input validation
+      Style — Check for: missing documentation, naming conventions, code duplication, complexity, missing type annotations
+      Bugs — Check for: missing error handling, resource leaks, edge cases (null, zero division, bounds), mutable default arguments
+
+      Your final answer must be a readable markdown report.
+      Use headings (## Security, ## Style, ## Bugs) and bullet points for each finding.
+```
+
+**Key points:**
+
+- Prompts are now **externalized** from code in a YAML file
+- Easy to modify prompts without changing Python code
+- Can add more prompts (e.g., security-only, style-only) to the YAML file
+- The `{file_path}` placeholder is filled in at runtime
+
+## Step 4: Create the Agent (15 min)
 
 Create `src/code_review_agent.py`:
 
 ```python
 import os
+import yaml
 from pathlib import Path
 from smolagents import CodeAgent, LiteLLMModel
 from tools import read_code_file
+
+
+def load_prompts():
+    """Load prompts from prompts.yaml."""
+    prompt_file = Path(__file__).resolve().parent / "prompts.yaml"
+    with open(prompt_file, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    return data.get("prompts", {})
+
+
+def get_code_review_prompt(file_path):
+    """Get the code review prompt template, formatted with the given file path."""
+    prompts = load_prompts()
+    template = prompts["code_review"]["template"]
+    return template.format(file_path=file_path)
 
 
 def create_agent(verbose=True):
@@ -97,19 +142,8 @@ def review_code_file(file_path, save_report=True, output_dir="reports"):
 
     agent = create_agent()
 
-    task = f"""Review the code file at '{file_path}'.
-
-Analyze the code for issues in these categories:
-
-Security — Check for: dangerous functions (eval, exec), injection vulnerabilities, hardcoded secrets, missing input validation
-Style — Check for: missing documentation, naming conventions, code duplication, complexity, missing type annotations
-Bugs — Check for: missing error handling, resource leaks, edge cases (null, zero division, bounds), mutable default arguments
-
-You can use lint_code_file to get concrete linting findings if available for the language. Integrate any linting output into the Style section.
-
-Your final answer must be a readable markdown report.
-Use headings (## Security, ## Style, ## Bugs) and bullet points for each finding.
-Include specific actionable recommendations for each issue found."""
+    # Load prompt from YAML
+    task = get_code_review_prompt(file_path)
 
     result = agent.run(task)
 
@@ -121,19 +155,26 @@ Include specific actionable recommendations for each issue found."""
         print(f"\nReport saved to: {report_path}")
 
     return result
+```
 
+**Key points:**
 
-if __name__ == "__main__":
-    if not os.getenv("GROQ_API_KEY"):
-        print("ERROR: GROQ_API_KEY not set!")
-        exit(1)
+- `load_prompts()` reads the YAML file at startup
+- `get_code_review_prompt()` retrieves and formats the prompt template
+- The agent uses the prompt loaded from YAML
+
+if **name** == "**main**":
+if not os.getenv("GROQ_API_KEY"):
+print("ERROR: GROQ_API_KEY not set!")
+exit(1)
 
     result = review_code_file("examples/bad_code.py")
     print(f"\n{'='*60}")
     print(result)
-```
 
-## Step 4: Test It (10 min)
+````
+
+## Step 5: Test It (10 min)
 
 Create `examples/bad_code.py` with some intentional issues:
 
@@ -151,7 +192,7 @@ def read_config(filename="config.txt"):
 def add_to_list(item, items=[]):  # Bug: mutable default
     items.append(item)
     return items
-```
+````
 
 Run:
 
@@ -161,7 +202,7 @@ python src/code_review_agent.py
 
 The agent will autonomously read the file, analyze it against all three checklists, and produce a summary.
 
-## Step 5: Add Directory Support (10 min)
+## Step 6: Add Directory Support (10 min)
 
 Add to `src/code_review_agent.py`:
 
@@ -194,10 +235,10 @@ def review_directory(directory, save_reports=True, output_dir="reports"):
 | ----- | ----------------------------------- |
 | 0-10  | Setup (venv, dependencies, API key) |
 | 10-25 | Build tool in `tools.py`            |
-| 25-40 | Create agent + review function      |
-| 40-50 | Test with example file              |
-| 50-55 | Add directory support               |
-| 55-60 | Q&A                                 |
+| 25-30 | Create prompts in `prompts.yaml`    |
+| 30-45 | Create agent + review function      |
+| 45-55 | Test with example file              |
+| 55-60 | Add directory support + Q&A         |
 
 ## Bonus: Add Linting (Advanced)
 

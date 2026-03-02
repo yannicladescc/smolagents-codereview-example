@@ -35,7 +35,8 @@
 ```
 src/
   code_review_agent.py   # Agent creation, review functions, CLI
-  tools.py               # Tool definition (read_code_file)
+  tools.py               # Tool definitions (read_code_file, lint_code_file)
+  prompts.yaml           # Prompt templates (externalized for easy customization)
 examples/              # Test code files
 documentation/         # Guides
 reports/               # Generated review reports

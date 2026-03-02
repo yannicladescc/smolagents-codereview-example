@@ -31,7 +31,7 @@ The `read_code_file` tool handles file I/O. For Python files, `lint_code_file` r
 This design means:
 
 - Tools provide **I/O + linting** (file access, concrete violations)
-- The prompt provides **structure** (categories and checklists)
+- The **prompts.yaml** file provides **structure** (externalized prompt templates with categories and checklists)
 - The LLM provides **intelligence** (context-aware analysis)
 - Works for any programming language (linting for Python, semantic analysis for all)
 
@@ -45,11 +45,21 @@ The agent uses three layers of protection for Groq's free tier (30 RPM):
 
 ## Customization
 
-```python
-# Change the task prompt
-task = "Review for security ONLY. Ignore style."
+**Update prompts:** Edit `src/prompts.yaml` to modify review categories, guidelines, or checklists without touching Python code.
 
-# Adjust agent parameters
+```yaml
+# src/prompts.yaml
+prompts:
+  code_review:
+    template: |
+      Review the code file at '{file_path}'.
+      # Customize categories and guidelines here
+```
+
+**Adjust agent parameters:**
+
+```python
+# Adjust temperature, verbosity, rate limits
 agent = create_agent(temperature=0.1, verbose=False)
 ```
 

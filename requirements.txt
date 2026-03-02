@@ -9,7 +9,6 @@ groq>=0.15.0
 # Environment variable management
 python-dotenv>=1.0.0
 
-# Optional: For enhanced code analysis
-# pylint>=3.0.0
-# black>=24.0.0
-# mypy>=1.8.0
+# YAML prompt configuration
+pyyaml>=6.0
+

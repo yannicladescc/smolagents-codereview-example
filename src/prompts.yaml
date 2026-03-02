@@ -1,0 +1,19 @@
+prompts:
+  code_review:
+    name: "Code Review Prompt"
+    version: "1.0"
+    description: "Analyzes source code for security, style, and bug issues"
+    template: |
+      Review the code file at '{file_path}'.
+
+      Analyze the code for issues in these categories:
+
+      Security — Check for: dangerous functions (eval, exec), injection vulnerabilities, hardcoded secrets, missing input validation
+      Style — Check for: missing documentation, naming conventions, code duplication, complexity, missing type annotations
+      Bugs — Check for: missing error handling, resource leaks, edge cases (null, zero division, bounds), mutable default arguments
+
+      You can use lint_code_file to get concrete linting findings if available for the language. Integrate any linting output into the Style section.
+
+      Your final answer must be a readable markdown report (not a dict or JSON).
+      Use headings (## Security, ## Style, ## Bugs) and bullet points for each finding.
+      Include specific actionable recommendations for each issue found.

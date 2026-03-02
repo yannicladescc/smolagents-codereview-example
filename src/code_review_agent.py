@@ -11,6 +11,7 @@ import os
 import time
 from pathlib import Path
 
+import yaml
 from smolagents import CodeAgent, LiteLLMModel
 
 from tools import read_code_file, lint_code_file
@@ -20,6 +21,34 @@ SUPPORTED_EXTENSIONS = {
     ".java", ".go", ".rs", ".rb",
     ".cpp", ".c", ".cs", ".swift", ".kt",
 }
+
+
+def load_prompts():
+    """
+    Load prompts from the prompts.yaml file.
+
+    Returns:
+        Dictionary containing all prompts
+    """
+    prompt_file = Path(__file__).resolve().parent / "prompts.yaml"
+    with open(prompt_file, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    return data.get("prompts", {})
+
+
+def get_code_review_prompt(file_path):
+    """
+    Get the code review prompt template, formatted with the given file path.
+
+    Args:
+        file_path: Path to the code file being reviewed
+
+    Returns:
+        Formatted prompt string
+    """
+    prompts = load_prompts()
+    template = prompts["code_review"]["template"]
+    return template.format(file_path=file_path)
 
 
 def create_agent(model_name=None, temperature=None, max_tokens=None, verbose=True):
@@ -101,19 +130,7 @@ def review_code_file(file_path, save_report=True, output_dir="reports"):
 
     agent = create_agent()
 
-    task = f"""Review the code file at '{file_path}'.
-
-Analyze the code for issues in these categories:
-
-Security — Check for: dangerous functions (eval, exec), injection vulnerabilities, hardcoded secrets, missing input validation
-Style — Check for: missing documentation, naming conventions, code duplication, complexity, missing type annotations
-Bugs — Check for: missing error handling, resource leaks, edge cases (null, zero division, bounds), mutable default arguments
-
-You can use lint_code_file to get concrete linting findings if available for the language. Integrate any linting output into the Style section.
-
-Your final answer must be a readable markdown report (not a dict or JSON).
-Use headings (## Security, ## Style, ## Bugs) and bullet points for each finding.
-Include specific actionable recommendations for each issue found."""
+    task = get_code_review_prompt(file_path)
 
     try:
         result = agent.run(task)
