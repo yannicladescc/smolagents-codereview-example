@@ -40,14 +40,22 @@ results = review_directory("my_project/")
 ## Architecture
 
 ```
-User → review_code_file() → CodeAgent → Tools → Text Report
-                                ↓
-                            Groq LLM
+User
+  ↓
+review_code_file()
+  ↓
+CodeAgent.run() ←→ [Loop: Call tools OR generate output?]
+  ↑                    ↓
+  ├─ Groq LLM ← ─ ─ ─ ─┤
+  │                    ↓
+  └─ Tools ← ─ ─ ─ ─ ─-┤
+                       ↓
+                  Text Report
 ```
 
 **Tools:** `read_code_file` (loads files), `lint_code_file` (runs ruff on Python)
 
-The agent autonomously uses tools based on their descriptions. For Python files, it calls ruff to detect style issues. The LLM performs semantic analysis (security, bugs, complex patterns) — linting provides concrete findings, the LLM provides context-aware intelligence.
+The agent autonomously loops: at each step, the LLM decides whether to call a tool for concrete data or generate the final review. For Python files, it may call ruff to detect style issues. The LLM performs semantic analysis (security, bugs, complex patterns) — tools provide concrete findings, the LLM provides context-aware intelligence.
 
 ## Configuration
 
