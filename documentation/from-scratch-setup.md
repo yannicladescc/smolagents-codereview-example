@@ -75,7 +75,7 @@ def create_agent(verbose=True):
     model = LiteLLMModel(
         model_id=os.getenv("GROQ_MODEL_NAME", "groq/meta-llama/llama-4-scout-17b-16e-instruct"),
         temperature=float(os.getenv("GROQ_TEMPERATURE", "0.2")),
-        max_tokens=int(os.getenv("GROQ_MAX_TOKENS", "4096")),
+        max_tokens=int(os.getenv("GROQ_MAX_TOKENS", "2000")),
         timeout=60,
         requests_per_minute=25,  # Groq free tier: 30 RPM
     )

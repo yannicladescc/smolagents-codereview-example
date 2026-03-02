@@ -40,7 +40,7 @@ def create_agent(model_name=None, temperature=None, max_tokens=None, verbose=Tru
     if temperature is None:
         temperature = float(os.getenv("GROQ_TEMPERATURE", "0.2"))
     if max_tokens is None:
-        max_tokens = int(os.getenv("GROQ_MAX_TOKENS", "4096"))
+        max_tokens = int(os.getenv("GROQ_MAX_TOKENS", "2000"))
 
     model = LiteLLMModel(
         model_id=model_name,
@@ -117,6 +117,10 @@ Include specific actionable recommendations for each issue found."""
 
     try:
         result = agent.run(task)
+    except FileNotFoundError:
+        return f"Error: File not found at {file_path}"
+    except TimeoutError:
+        return "Error: LLM request timed out. Check your internet or reduce GROQ_MAX_TOKENS."
     except Exception as e:
         print(f"\nError during review: {e}")
         return f"Error: {e}"

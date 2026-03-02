@@ -15,13 +15,13 @@ from smolagents import tool
 @tool
 def read_code_file(file_path: str) -> str:
     """
-    Reads a source code file from the filesystem.
+    Reads a source code file from the filesystem (UTF-8 encoding).
 
     Args:
-        file_path: Path to the code file to read
+        file_path: Path to the code file. Must exist and be readable.
 
     Returns:
-        Contents of the file as a string
+        File contents as string, or error message if file unavailable.
     """
     print(f"[File Reader] Reading: {file_path}")
     try:

@@ -55,7 +55,7 @@ The agent autonomously uses tools based on their descriptions. For Python files,
 GROQ_API_KEY=your_key                                              # Required
 GROQ_MODEL_NAME=groq/meta-llama/llama-4-scout-17b-16e-instruct    # Optional
 GROQ_TEMPERATURE=0.2                                               # Optional
-GROQ_MAX_TOKENS=2048                                               # Optional
+GROQ_MAX_TOKENS=2000                                               # Optional
 ```
 
 ## Documentation

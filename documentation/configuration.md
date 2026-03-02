@@ -9,25 +9,22 @@ GROQ_API_KEY=your_key_here
 # Optional (defaults shown)
 GROQ_MODEL_NAME=groq/meta-llama/llama-4-scout-17b-16e-instruct
 GROQ_TEMPERATURE=0.2
-GROQ_MAX_TOKENS=4096
+GROQ_MAX_TOKENS=2000
 ```
 
 Set via `.env` file or `export`.
 
-## Model Options
+## Model Selection
 
-| Model                                | Best For                                |
-| ------------------------------------ | --------------------------------------- |
-| `groq/llama-3.3-70b-versatile`       | Default, reliable, 12K TPM free tier    |
-| `groq/llama-3.1-8b-instant`          | Faster, lower quality, 6K TPM free tier |
-| `groq/deepseek-r1-distill-llama-70b` | Code reasoning                          |
+The default model is `groq/meta-llama/llama-4-scout-17b-16e-instruct` with a 30K token-per-minute limit. You can use any other Groq model as long as it has a context window large enough for your code files. Adjust `GROQ_MAX_TOKENS` if using a model with different rate limits.
 
 [Get free API key](https://console.groq.com/keys)
 
-## Rate Limits (Groq Free Tier)
+## Rate Limits
 
-- **30 RPM** (requests per minute) — agent uses `requests_per_minute=25`
-- **~12K TPM** for llama-3.3-70b — agent uses `max_tokens=1024`
+- **25 RPM** — requests per minute (Groq's free tier: 30 RPM)
+- **30K TPM** — tokens per minute (Groq's free tier limit)
+- **2000 tokens** — `max_tokens` configured to safely stay under TPM limit
 - Auto-retry on 429 with exponential backoff (built into smolagents)
 - 10s delay between files in directory mode
 
