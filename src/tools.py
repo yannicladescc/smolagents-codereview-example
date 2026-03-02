@@ -38,7 +38,17 @@ def read_code_file(file_path: str) -> str:
 @tool
 def lint_code_file(file_path: str) -> str:
     """
-    Runs ruff linter on Python code files.
+    Runs ruff linter on Python code files to detect concrete style violations.
+    
+    This tool uses ruff (a fast Python linter) to find issues like:
+    - Undefined names and undefined imports
+    - Bare except clauses
+    - Style violations
+    
+    For Python files (.py): Returns ruff linting output with specific line numbers and error codes.
+    For non-Python files: Returns a message that linting is unavailable for that language.
+    
+    Use this before or alongside semantic code analysis to get concrete, actionable findings.
 
     Args:
         file_path: Path to the code file to lint

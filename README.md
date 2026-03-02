@@ -47,7 +47,7 @@ User → review_code_file() → CodeAgent → Tools → Text Report
 
 **Tools:** `read_code_file` (loads files), `lint_code_file` (runs ruff on Python)
 
-For Python files, the agent uses ruff to detect style issues. The LLM performs semantic analysis (security, bugs, complex patterns) — linting provides concrete findings, the LLM provides context-aware intelligence.
+The agent autonomously uses tools based on their descriptions. For Python files, it calls ruff to detect style issues. The LLM performs semantic analysis (security, bugs, complex patterns) — linting provides concrete findings, the LLM provides context-aware intelligence.
 
 ## Configuration
 

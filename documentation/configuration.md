@@ -9,7 +9,7 @@ GROQ_API_KEY=your_key_here
 # Optional (defaults shown)
 GROQ_MODEL_NAME=groq/meta-llama/llama-4-scout-17b-16e-instruct
 GROQ_TEMPERATURE=0.2
-GROQ_MAX_TOKENS=1024
+GROQ_MAX_TOKENS=4096
 ```
 
 Set via `.env` file or `export`.
@@ -58,4 +58,4 @@ results = review_directory("src/")
 | `verbosity_level`     | 2       | 0=silent, 1=info, 2=debug                      |
 | `requests_per_minute` | 25      | Stay under Groq's 30 RPM                       |
 | `temperature`         | 0.2     | Lower = more deterministic                     |
-| `max_tokens`          | 1024    | Max output tokens per call                     |
+| `max_tokens`          | 4096    | Max output tokens per call                     |

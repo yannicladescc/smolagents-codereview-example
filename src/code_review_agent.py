@@ -103,19 +103,17 @@ def review_code_file(file_path, save_report=True, output_dir="reports"):
 
     task = f"""Review the code file at '{file_path}'.
 
-Steps:
-1. Use read_code_file to load the file
-2. If Python file: Use lint_code_file to check for linting issues with ruff
-3. Analyze the code for issues in these categories:
+Analyze the code for issues in these categories:
 
 Security — Check for: dangerous functions (eval, exec), injection vulnerabilities, hardcoded secrets, missing input validation
-Style — Check for: missing documentation, naming conventions, code duplication, complexity, missing type annotations (also use ruff findings if available)
+Style — Check for: missing documentation, naming conventions, code duplication, complexity, missing type annotations
 Bugs — Check for: missing error handling, resource leaks, edge cases (null, zero division, bounds), mutable default arguments
 
-IMPORTANT: Your final answer must be a readable markdown report (not a dict or JSON).
+You can use lint_code_file to get concrete linting findings if available for the language. Integrate any linting output into the Style section.
+
+Your final answer must be a readable markdown report (not a dict or JSON).
 Use headings (## Security, ## Style, ## Bugs) and bullet points for each finding.
-Include specific actionable recommendations for each issue found.
-For Python files with ruff output, integrate those findings into the Style section."""
+Include specific actionable recommendations for each issue found."""
 
     try:
         result = agent.run(task)

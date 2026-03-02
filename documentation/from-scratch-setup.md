@@ -75,7 +75,7 @@ def create_agent(verbose=True):
     model = LiteLLMModel(
         model_id=os.getenv("GROQ_MODEL_NAME", "groq/meta-llama/llama-4-scout-17b-16e-instruct"),
         temperature=float(os.getenv("GROQ_TEMPERATURE", "0.2")),
-        max_tokens=int(os.getenv("GROQ_MAX_TOKENS", "1024")),
+        max_tokens=int(os.getenv("GROQ_MAX_TOKENS", "4096")),
         timeout=60,
         requests_per_minute=25,  # Groq free tier: 30 RPM
     )
@@ -83,7 +83,7 @@ def create_agent(verbose=True):
     return CodeAgent(
         tools=[read_code_file],
         model=model,
-        max_steps=2,
+        max_steps=4,
         verbosity_level=2 if verbose else 0,
         add_base_tools=False,
     )
@@ -99,13 +99,13 @@ def review_code_file(file_path, save_report=True, output_dir="reports"):
 
     task = f"""Review the code file at '{file_path}'.
 
-Steps:
-1. Use read_code_file to load the file
-2. Analyze the code for issues in these categories:
+Analyze the code for issues in these categories:
 
 Security — Check for: dangerous functions (eval, exec), injection vulnerabilities, hardcoded secrets, missing input validation
 Style — Check for: missing documentation, naming conventions, code duplication, complexity, missing type annotations
 Bugs — Check for: missing error handling, resource leaks, edge cases (null, zero division, bounds), mutable default arguments
+
+You can use lint_code_file to get concrete linting findings if available for the language. Integrate any linting output into the Style section.
 
 Your final answer must be a readable markdown report.
 Use headings (## Security, ## Style, ## Bugs) and bullet points for each finding.
@@ -206,36 +206,57 @@ For Python files, integrate [ruff](https://docs.astral.sh/ruff/) to detect concr
 ```python
 # Add to tools.py
 import subprocess
+from pathlib import Path
 
 @tool
 def lint_code_file(file_path: str) -> str:
-    """Run ruff linter on Python files."""
-    if file_path.endswith(".py"):
-        result = subprocess.run(["ruff", "check", file_path], capture_output=True, text=True)
-        return f"Ruff output:\n{result.stdout}" if result.stdout else "No issues found"
-    return f"Linting not available for {Path(file_path).suffix}"
+    """Runs ruff linter on Python files to detect concrete style violations.
+
+    For Python files (.py): Returns ruff linting output.
+    For non-Python files: Returns a message that linting is unavailable.
+
+    Use this before or alongside semantic analysis to get concrete, actionable findings.
+    """
+    file_ext = Path(file_path).suffix.lower()
+
+    if file_ext == ".py":
+        try:
+            result = subprocess.run(
+                ["ruff", "check", file_path],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            output = result.stdout + result.stderr
+            return f"Ruff linting results:\n{output}" if output.strip() else "Ruff: No linting issues found"
+        except FileNotFoundError:
+            return "Ruff not installed. Install with: pip install ruff"
+        except Exception as e:
+            return f"Ruff error: {e}"
+    else:
+        return f"Linting not available for {file_ext} files. Currently supported: Python (.py)"
 
 # Update create_agent() to include the tool
 return CodeAgent(
     tools=[read_code_file, lint_code_file],  # Add lint_code_file
     model=model,
-    max_steps=4,  # Increase for linting step
+    max_steps=4,  # Increase for linting capability
     ...
 )
 
-# Update the task prompt to mention linting
+# Update the task prompt (agent decides autonomously based on tool descriptions)
 task = f"""Review the code file at '{file_path}'.
-Steps:
-1. Use read_code_file to load the file
-2. If Python file: Use lint_code_file to run ruff
-3. Analyze for security, style (integrate ruff findings), and bugs
-...
+
+Analyze for Security, Style, and Bugs...
+You can use lint_code_file to get concrete linting findings if available for the language. Integrate any linting output into the Style section.
+
+Your final answer must be a readable markdown report...
 """
 ```
 
 Install ruff: `pip install ruff`
 
-Now the agent will automatically run linting for Python files and integrate findings into the report.
+Now the **agent will autonomously decide when to use linting** based on the tool description and the file type. For Python files, it will call ruff; for other languages, it will fall back to semantic analysis only.
 
 ## What You've Learned
 
