@@ -11,18 +11,25 @@ The agent autonomously uses tools to analyze code and produce a review. It uses 
        ↓
 2. Agent receives task prompt with review checklists
        ↓
-3. Agent calls read_code_file("myfile.py") → source code
+3. Agent enters loop (max 4 steps):
+   ┌─────────────────────────────────────┐
+   │ LLM decides: Call tool OR generate  │
+   │ output?                             │
+   │                                     │
+   │ If TOOL:                            │
+   │  → read_code_file("myfile.py")      │
+   │  → lint_code_file() [if Python]     │
+   │  → Continue loop with results       │
+   │                                     │
+   │ If OUTPUT:                          │
+   │  → Generate markdown report         │
+   │  → Exit loop                        │
+   └─────────────────────────────────────┘
        ↓
-4. If Python file: calls lint_code_file() → ruff findings
-       ↓
-5. Agent analyzes code (combines linting output + semantic analysis)
-       ↓
-6. Agent produces markdown report via final_answer()
-       ↓
-7. Result saved as markdown report
+4. Result saved as markdown report
 ```
 
-The agent makes 2 LLM calls total: one to decide to read the file (tool call), and one to analyze the code and produce findings.
+The agent makes **up to 4 LLM calls** (one per loop iteration): the LLM decides dynamically at each step whether to invoke tools or generate the final review.
 
 ## How It Works
 
