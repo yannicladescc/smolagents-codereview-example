@@ -13,24 +13,27 @@ The agent autonomously uses tools to analyze code and produce a review. It uses 
        ↓
 3. Agent calls read_code_file("myfile.py") → source code
        ↓
-4. Agent analyzes code against all checklists (security, style, bugs)
+4. If Python file: calls lint_code_file() → ruff findings
        ↓
-5. Agent produces markdown report via final_answer()
+5. Agent analyzes code (combines linting output + semantic analysis)
        ↓
-6. Result saved as markdown report
+6. Agent produces markdown report via final_answer()
+       ↓
+7. Result saved as markdown report
 ```
 
 The agent makes 2 LLM calls total: one to decide to read the file (tool call), and one to analyze the code and produce findings.
 
 ## How It Works
 
-The `read_code_file` tool handles file I/O — it reads source code from disk, which the LLM can't do on its own. The review checklists are embedded in the task prompt, giving the LLM structured guidance on what to look for.
+The `read_code_file` tool handles file I/O. For Python files, `lint_code_file` runs ruff to detect concrete style violations. The LLM analyzes code against semantic checklists (security, bugs, design patterns) and integrates linting findings into the report.
 
 This design means:
-- The tool provides **I/O** (reading files from disk)
+
+- Tools provide **I/O + linting** (file access, concrete violations)
 - The prompt provides **structure** (categories and checklists)
-- The LLM provides **intelligence** (actual code analysis)
-- Works for any programming language (the LLM adapts)
+- The LLM provides **intelligence** (context-aware analysis)
+- Works for any programming language (linting for Python, semantic analysis for all)
 
 ## Rate Limit Protection
 
@@ -52,9 +55,9 @@ agent = create_agent(temperature=0.1, verbose=False)
 
 ## Agent vs Static Analysis
 
-| Aspect | Static Analysis | AI Agent |
-|--------|----------------|----------|
-| Rules | Fixed patterns | Context-aware |
-| Languages | Language-specific | Any language |
-| Explanations | Generic | Code-specific |
-| Customization | Rule changes | Natural language |
+| Aspect        | Static Analysis   | AI Agent         |
+| ------------- | ----------------- | ---------------- |
+| Rules         | Fixed patterns    | Context-aware    |
+| Languages     | Language-specific | Any language     |
+| Explanations  | Generic           | Code-specific    |
+| Customization | Rule changes      | Natural language |

@@ -45,9 +45,9 @@ User → review_code_file() → CodeAgent → Tools → Text Report
                          Groq LLM (Llama 3.3 70B)
 ```
 
-**Tools:** `read_code_file` (loads files), `analyze_code` (guides analysis by category)
+**Tools:** `read_code_file` (loads files), `lint_code_file` (runs ruff on Python)
 
-The agent reads code, then calls `analyze_code` for each category (security, style, bugs). The LLM performs the actual analysis — tools provide structure, the LLM provides intelligence.
+For Python files, the agent uses ruff to detect style issues. The LLM performs semantic analysis (security, bugs, complex patterns) — linting provides concrete findings, the LLM provides context-aware intelligence.
 
 ## Configuration
 

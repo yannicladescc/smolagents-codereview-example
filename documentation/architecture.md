@@ -22,7 +22,8 @@
 │                     ↓                               │
 │  Tool Layer                                         │
 │  ┌──────────────────────────────────────────────┐  │
-│  │ read_code_file: loads source files from disk │  │
+│  │ read_code_file: loads files from disk        │  │
+│  │ lint_code_file: runs ruff on Python files    │  │
 │  └──────────────────┬───────────────────────────┘  │
 │                     ↓                               │
 │  Output: plain text report (saved as .md)           │
@@ -42,15 +43,15 @@ reports/               # Generated review reports
 
 ## Technology Stack
 
-| Component | Technology | Why |
-|-----------|-----------|-----|
-| Agent framework | [smolagents](https://github.com/huggingface/smolagents) | Simple, code-first, model-agnostic |
-| LLM provider | [Groq](https://groq.com) | Free tier, fast inference |
-| Provider abstraction | [LiteLLM](https://github.com/BerriAI/litellm) | Easy provider switching |
+| Component            | Technology                                              | Why                                |
+| -------------------- | ------------------------------------------------------- | ---------------------------------- |
+| Agent framework      | [smolagents](https://github.com/huggingface/smolagents) | Simple, code-first, model-agnostic |
+| LLM provider         | [Groq](https://groq.com)                                | Free tier, fast inference          |
+| Provider abstraction | [LiteLLM](https://github.com/BerriAI/litellm)           | Easy provider switching            |
 
 ## Design Decisions
 
-**1 tool, not many:** `read_code_file` handles file I/O — the one thing the LLM can't do on its own. The review checklists are embedded in the task prompt since they're static data, not dynamic operations. The LLM does the actual analysis.
+**2 tools for complementary strengths:** `read_code_file` handles file I/O. `lint_code_file` runs ruff on Python files for concrete style findings. The LLM does semantic analysis (security, complex bugs, design patterns). This hybrid approach combines the speed and consistency of linting with the context-awareness of AI reasoning.
 
 **Single agent.run() per file:** The agent reads the file (1 tool call) and produces the full report (1 final answer) in 2 LLM calls. This minimizes token usage and stays within Groq's free tier rate limits.
 

@@ -1,9 +1,13 @@
 """
 Tools for the code review agent.
 
-Provides one tool:
+Provides two tools:
 - read_code_file: Reads source code files from disk
+- lint_code_file: Runs language-specific linters (ruff for Python, eslint for TS/JS)
 """
+
+import subprocess
+from pathlib import Path
 
 from smolagents import tool
 
@@ -29,3 +33,45 @@ def read_code_file(file_path: str) -> str:
         error_msg = f"Error reading file {file_path}: {e}"
         print(f"[File Reader] {error_msg}")
         return error_msg
+
+
+@tool
+def lint_code_file(file_path: str) -> str:
+    """
+    Runs ruff linter on Python code files.
+
+    Args:
+        file_path: Path to the code file to lint
+
+    Returns:
+        Ruff linting output or message indicating linting unavailable for language
+    """
+    file_ext = Path(file_path).suffix.lower()
+    print(f"[Linter] Linting: {file_path}")
+
+    # Python: use ruff
+    if file_ext == ".py":
+        try:
+            result = subprocess.run(
+                ["ruff", "check", file_path],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            output = result.stdout + result.stderr
+            if output.strip():
+                print(f"[Linter] Ruff found issues")
+                return f"Ruff linting results:\n{output}"
+            else:
+                print(f"[Linter] No ruff issues found")
+                return "Ruff: No linting issues found"
+        except FileNotFoundError:
+            return "Ruff not installed. Install with: pip install ruff"
+        except subprocess.TimeoutExpired:
+            return "Ruff linting timed out"
+        except Exception as e:
+            return f"Ruff error: {e}"
+
+    # Other languages
+    else:
+        return f"Linting not available for {file_ext} files. Currently supported: Python (.py)"

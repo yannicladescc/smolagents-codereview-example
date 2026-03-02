@@ -13,7 +13,7 @@ from pathlib import Path
 
 from smolagents import CodeAgent, LiteLLMModel
 
-from tools import read_code_file
+from tools import read_code_file, lint_code_file
 
 SUPPORTED_EXTENSIONS = {
     ".py", ".js", ".ts", ".jsx", ".tsx",
@@ -51,7 +51,7 @@ def create_agent(model_name=None, temperature=None, max_tokens=None, verbose=Tru
     )
 
     return CodeAgent(
-        tools=[read_code_file],
+        tools=[read_code_file, lint_code_file],
         model=model,
         max_steps=4,
         verbosity_level=2 if verbose else 0,
@@ -105,15 +105,17 @@ def review_code_file(file_path, save_report=True, output_dir="reports"):
 
 Steps:
 1. Use read_code_file to load the file
-2. Analyze the code for issues in these categories:
+2. If Python file: Use lint_code_file to check for linting issues with ruff
+3. Analyze the code for issues in these categories:
 
 Security — Check for: dangerous functions (eval, exec), injection vulnerabilities, hardcoded secrets, missing input validation
-Style — Check for: missing documentation, naming conventions, code duplication, complexity, missing type annotations
+Style — Check for: missing documentation, naming conventions, code duplication, complexity, missing type annotations (also use ruff findings if available)
 Bugs — Check for: missing error handling, resource leaks, edge cases (null, zero division, bounds), mutable default arguments
 
 IMPORTANT: Your final answer must be a readable markdown report (not a dict or JSON).
 Use headings (## Security, ## Style, ## Bugs) and bullet points for each finding.
-Include specific actionable recommendations for each issue found."""
+Include specific actionable recommendations for each issue found.
+For Python files with ruff output, integrate those findings into the Style section."""
 
     try:
         result = agent.run(task)

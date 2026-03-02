@@ -199,6 +199,44 @@ def review_directory(directory, save_reports=True, output_dir="reports"):
 | 50-55 | Add directory support               |
 | 55-60 | Q&A                                 |
 
+## Bonus: Add Linting (Advanced)
+
+For Python files, integrate [ruff](https://docs.astral.sh/ruff/) to detect concrete style violations automatically:
+
+```python
+# Add to tools.py
+import subprocess
+
+@tool
+def lint_code_file(file_path: str) -> str:
+    """Run ruff linter on Python files."""
+    if file_path.endswith(".py"):
+        result = subprocess.run(["ruff", "check", file_path], capture_output=True, text=True)
+        return f"Ruff output:\n{result.stdout}" if result.stdout else "No issues found"
+    return f"Linting not available for {Path(file_path).suffix}"
+
+# Update create_agent() to include the tool
+return CodeAgent(
+    tools=[read_code_file, lint_code_file],  # Add lint_code_file
+    model=model,
+    max_steps=4,  # Increase for linting step
+    ...
+)
+
+# Update the task prompt to mention linting
+task = f"""Review the code file at '{file_path}'.
+Steps:
+1. Use read_code_file to load the file
+2. If Python file: Use lint_code_file to run ruff
+3. Analyze for security, style (integrate ruff findings), and bugs
+...
+"""
+```
+
+Install ruff: `pip install ruff`
+
+Now the agent will automatically run linting for Python files and integrate findings into the report.
+
 ## What You've Learned
 
 - Creating tools with `@tool` decorator
