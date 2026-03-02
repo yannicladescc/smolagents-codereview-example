@@ -12,21 +12,23 @@
 │  │ review_code_file() • review_directory()      │  │
 │  └──────────────────┬───────────────────────────┘  │
 │                     ↓                               │
-│  Agent Layer                                        │
+│  Agent Decision Loop (max 4 steps)                  │
 │  ┌──────────────────────────────────────────────┐  │
-│  │ LiteLLM → Groq API (Llama 3.3 70B)          │  │
+│  │ LiteLLM → Groq API (Llama 4 Scout 17B)      │  │
 │  │ CodeAgent (smolagents)                       │  │
+│  │   • Max 4 LLM calls per file                 │  │
 │  │   • Rate limiter (25 RPM)                    │  │
 │  │   • Auto-retry on 429                        │  │
+│  │   • Decides: Call tools OR generate output?  │  │
 │  └──────────────────┬───────────────────────────┘  │
 │                     ↓                               │
-│  Tool Layer                                         │
+│  Tools (called as needed)                           │
 │  ┌──────────────────────────────────────────────┐  │
 │  │ read_code_file: loads files from disk        │  │
 │  │ lint_code_file: runs ruff on Python files    │  │
 │  └──────────────────┬───────────────────────────┘  │
 │                     ↓                               │
-│  Output: plain text report (saved as .md)           │
+│  Output: markdown report (saved as .md)             │
 └────────────────────────────────────────────────────┘
 ```
 
@@ -54,7 +56,7 @@ reports/               # Generated review reports
 
 **2 tools for complementary strengths:** `read_code_file` handles file I/O. `lint_code_file` runs ruff on Python files for concrete style findings. The LLM does semantic analysis (security, complex bugs, design patterns). This hybrid approach combines the speed and consistency of linting with the context-awareness of AI reasoning.
 
-**Single agent.run() per file:** The agent reads the file (1 tool call) and produces the full report (1 final answer) in 2 LLM calls. This minimizes token usage and stays within Groq's free tier rate limits.
+**Single agent.run() per file:** The agent enters a decision loop (up to 4 steps) where each iteration makes an LLM call to decide whether to invoke tools or generate the final report. This dynamic approach minimizes unnecessary LLM calls while staying flexible for complex code analysis, and respects Groq's free tier rate limits.
 
 **Plain text output:** The LLM generates readable markdown directly. No JSON parsing, no dataclasses — simpler and more reliable.
 
