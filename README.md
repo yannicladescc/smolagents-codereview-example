@@ -52,10 +52,10 @@ The agent reads code, then calls `analyze_code` for each category (security, sty
 ## Configuration
 
 ```bash
-GROQ_API_KEY=your_key                         # Required
-GROQ_MODEL_NAME=groq/llama-3.3-70b-versatile  # Optional
-GROQ_TEMPERATURE=0.2                          # Optional
-GROQ_MAX_TOKENS=2048                          # Optional
+GROQ_API_KEY=your_key                                              # Required
+GROQ_MODEL_NAME=groq/meta-llama/llama-4-scout-17b-16e-instruct    # Optional
+GROQ_TEMPERATURE=0.2                                               # Optional
+GROQ_MAX_TOKENS=2048                                               # Optional
 ```
 
 ## Documentation
@@ -79,22 +79,22 @@ reports/                 # Generated outputs
 
 ## Troubleshooting
 
-| Problem | Fix |
-|---------|-----|
-| API key not set | `export GROQ_API_KEY="your-key"` or add to `.env` |
-| Module not found | `source .venv/bin/activate && uv pip install -r requirements.txt` |
-| Rate limit (429) | Built-in retry handles this automatically. Reduce `GROQ_MAX_TOKENS` if persistent |
-| Inconsistent results | Lower `GROQ_TEMPERATURE` to 0.1 |
+| Problem              | Fix                                                                               |
+| -------------------- | --------------------------------------------------------------------------------- |
+| API key not set      | `export GROQ_API_KEY="your-key"` or add to `.env`                                 |
+| Module not found     | `source .venv/bin/activate && uv pip install -r requirements.txt`                 |
+| Rate limit (429)     | Built-in retry handles this automatically. Reduce `GROQ_MAX_TOKENS` if persistent |
+| Inconsistent results | Lower `GROQ_TEMPERATURE` to 0.1                                                   |
 
 ## Workshop Guide (1 Hour)
 
-| Time | Activity |
-|------|----------|
-| 0-10 | Setup (dependencies, API key) |
+| Time  | Activity                                       |
+| ----- | ---------------------------------------------- |
+| 0-10  | Setup (dependencies, API key)                  |
 | 10-25 | Build tools (`read_code_file`, `analyze_code`) |
-| 25-40 | Create agent, write review function |
-| 40-55 | Test with examples, add directory support |
-| 55-60 | Q&A |
+| 25-40 | Create agent, write review function            |
+| 40-55 | Test with examples, add directory support      |
+| 55-60 | Q&A                                            |
 
 Guide: [documentation/from-scratch-setup.md](documentation/from-scratch-setup.md)
 

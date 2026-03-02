@@ -52,6 +52,7 @@ def read_code_file(file_path: str) -> str:
 ```
 
 **Key points:**
+
 - `@tool` makes functions callable by the agent
 - Type hints generate the tool schema
 - Docstrings tell the LLM when/how to use the tool
@@ -72,7 +73,7 @@ from tools import read_code_file
 def create_agent(verbose=True):
     """Create the code review agent with Groq."""
     model = LiteLLMModel(
-        model_id=os.getenv("GROQ_MODEL_NAME", "groq/llama-3.3-70b-versatile"),
+        model_id=os.getenv("GROQ_MODEL_NAME", "groq/meta-llama/llama-4-scout-17b-16e-instruct"),
         temperature=float(os.getenv("GROQ_TEMPERATURE", "0.2")),
         max_tokens=int(os.getenv("GROQ_MAX_TOKENS", "1024")),
         timeout=60,
@@ -153,6 +154,7 @@ def add_to_list(item, items=[]):  # Bug: mutable default
 ```
 
 Run:
+
 ```bash
 python src/code_review_agent.py
 ```
@@ -188,14 +190,14 @@ def review_directory(directory, save_reports=True, output_dir="reports"):
 
 ## Workshop Timeline
 
-| Time | Activity |
-|------|----------|
-| 0-10 | Setup (venv, dependencies, API key) |
-| 10-25 | Build tool in `tools.py` |
-| 25-40 | Create agent + review function |
-| 40-50 | Test with example file |
-| 50-55 | Add directory support |
-| 55-60 | Q&A |
+| Time  | Activity                            |
+| ----- | ----------------------------------- |
+| 0-10  | Setup (venv, dependencies, API key) |
+| 10-25 | Build tool in `tools.py`            |
+| 25-40 | Create agent + review function      |
+| 40-50 | Test with example file              |
+| 50-55 | Add directory support               |
+| 55-60 | Q&A                                 |
 
 ## What You've Learned
 

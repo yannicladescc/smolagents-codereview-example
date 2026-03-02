@@ -36,7 +36,7 @@ def create_agent(model_name=None, temperature=None, max_tokens=None, verbose=Tru
         Configured CodeAgent instance
     """
     if model_name is None:
-        model_name = os.getenv("GROQ_MODEL_NAME", "groq/llama-3.3-70b-versatile")
+        model_name = os.getenv("GROQ_MODEL_NAME", "groq/meta-llama/llama-4-scout-17b-16e-instruct")
     if temperature is None:
         temperature = float(os.getenv("GROQ_TEMPERATURE", "0.2"))
     if max_tokens is None:
