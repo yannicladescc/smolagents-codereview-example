@@ -41,7 +41,10 @@ env/
 Thumbs.db
 
 # Reports
-reports/
+reports/*
+!reports/good_code_typescript_review_example.md
+!reports/bad_code_review_example.md
+
 !README.md
 !CLAUDE.md
 
